@@ -7,7 +7,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "validate:supabase": "ts-node validateSupabase.ts"
+    "validate:supabase": "ts-node validateSupabase.ts",
+    "gitflow": "node scripts/gitflow.js"
   },
   "dependencies": {
     "@react-navigation/bottom-tabs": "^7.3.13",

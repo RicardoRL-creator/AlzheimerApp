@@ -228,15 +228,27 @@ Este projeto usa o **GitHub Flow**, um modelo simples e eficiente para colabora�
    - Use nomes claros: `feature/login`, `fix/crash-ao-abrir`
 
 ### 9.3 Trabalhando na sua branch
-- Faça alterações e **salve** arquivos localmente.
-- Adicione as mudanças ao stage:
+- 1. Edite o código nos arquivos necessários e salve.
+- 2. Verifique o que mudou:
   ```powershell
-  git add arquivo1 arquivo2
+  git status
   ```
-- Crie commits pequenos e descritivos:
+  Mostra arquivos modificados e não rastreados.
+- 3. Adicione mudanças ao stage:
+  - Para arquivos específicos:
+    ```powershell
+    git add src/path/MeuComponente.tsx src/utils/helper.ts
+    ```
+  - Para todas as mudanças de uma vez:
+    ```powershell
+    git add .
+    ```
+- 4. Faça commits claros e atômicos:
   ```powershell
-  git commit -m "feat(login): adicionar botão de logout"
+  git commit -m "feat(login): valida campo de senha e exibe mensagem de erro"
   ```
+  Prefixos comuns: `feat:` (novas funcionalidades), `fix:` (correções), `docs:` (documentação), `chore:` (tarefas auxiliares).
+- 5. Teste localmente sua feature antes de prosseguir.
 
 ### 9.4 Manter sua branch atualizada
 Enquanto desenvolve, sincronize sua branch com a `main` para evitar conflitos:
@@ -287,3 +299,27 @@ No GitHub, vá em **Settings > Branches > Branch protection rules** e ative:
 - Verificação automática de testes e lint.
 
 Dessa forma você mantém o repositório organizado, evita erros na `main` e facilita o trabalho em equipe.
+
+### 9.11 Automação com GitFlow (script)
+Para tornar o fluxo de branches e Pull Requests mais rápido, criamos um pequeno script em `scripts/gitflow.js` usando Git e GitHub CLI.
+
+1. Crie uma branch de feature:
+   ```powershell
+   npm run gitflow start <nome-da-feature>
+   ```
+   - O script:
+     - Atualiza `main` (checkout + pull)
+     - Cria e troca para `feature/<nome-da-feature>`
+
+2. Envie a branch e abra Pull Request:
+   ```powershell
+   npm run gitflow pr <nome-da-feature>
+   ```
+   - O script:
+     - Faz `git push --set-upstream origin feature/<nome-da-feature>`
+     - Executa `gh pr create --fill --base main --head feature/<nome-da-feature>`
+
+Pré-requisitos:
+- Node.js + npm instalados
+- Git CLI no PATH
+- GitHub CLI autenticado (`gh auth login`)
