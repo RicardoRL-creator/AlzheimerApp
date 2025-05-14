@@ -3,200 +3,205 @@
 Aplicativo de assistência e monitoramento para pessoas com Alzheimer e seus cuidadores.
 
 ## Tecnologias
+- Frontend: React Native com TypeScript
+- Backend e Autenticação: Supabase
+- Naveção: React Navigation
+- Mapas: react-native-maps (a instalar)
+- Build e Dev: Expo (Metro Bundler)
+- Container: Docker (Docker Compose)
 
-- **Frontend:** React Native com TypeScript
-- **Backend e Autenticação:** Supabase
-- **Navegação:** React Navigation
-- **Mapas:** `react-native-maps` (a ser instalado)
-- **Build e Desenvolvimento:** Expo (com foco em Development Builds)
+## Índice
 
-## Configuração do Ambiente de Desenvolvimento
-
-### ✅ Pré-requisitos (Concluído)
-
-1.  **Node.js e npm:** Instale a versão LTS em [nodejs.org](https://nodejs.org/). **(OK)**
-2.  **Git (CLI):** Você precisa do Git instalado localmente para usar os comandos `git` no terminal. Instale em [git-scm.com](https://git-scm.com/). **(OK)**
-    * Após a instalação, **feche e reabra o VS Code** (ou use 'Developer: Reload Window') para que o novo PATH seja aplicado ao terminal integrado.
-    * Ter uma conta no GitHub (github.com) é útil para hospedar repositórios remotos, mas não substitui a instalação do Git local para versionamento.
-    * O próprio VS Code oferece integração visual de Git, mas ela depende do Git CLI instalado e disponível no `Path`. Sem Git instalado, os comandos de versionamento no VS Code não funcionarão.
-    * Após a instalação, feche e reabra o terminal (ou o VS Code) para que a variável `Path` seja recarregada.
-    * Após a instalação, abra um terminal e execute:
-      ```powershell
-      git --version
-      ```
-      para garantir que o comando seja reconhecido. Se der erro, verifique se `C:\Program Files\Git\cmd` está incluso no `Path` do sistema.
-3.  **GitHub CLI (gh):** Opcional, mas recomendado para criar e gerenciar repositórios direto no terminal.
-    ```powershell
-    winget install --id GitHub.cli -e --source winget
-    # Após a instalação, feche e reabra o terminal para o comando 'gh' ficar disponível.
-    gh --version
-    ```
-4.  **Docker Desktop:** Instale em [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop). **(OK)**
-5.  **Android Studio:** Instale em [developer.android.com/studio](https://developer.android.com/studio). **(OK)**
-    *   Durante a instalação, certifique-se de que o **Android SDK** e **Android SDK Platform-Tools** sejam instalados. **(OK)**
-    *   Configure um emulador Android através do AVD Manager no Android Studio ou prepare um dispositivo físico para testes. **(OK)**
-6.  **Expo CLI (opcional globalmente, mas `npx expo` é preferido):**
-    ```bash
-    npm install -g expo-cli
-    ```
-    **(OK, mas use preferencialmente npx expo ...)**
-
-### ✅ Configuração das Variáveis de Ambiente (Windows) (Concluído)
-
-1.  **Encontre o Local do Android SDK:**
-    *   Abra o Android Studio.
-    *   Vá em `File > Settings > Appearance & Behavior > System Settings > Android SDK`.
-    *   Copie o caminho exibido em "Android SDK Location" (ex: `C:\Users\ricardo.l.junior\AppData\Local\Android\Sdk`). **(OK)**
-
-2.  **Defina `ANDROID_HOME` como variável de sistema:**
-    *   Pesquise por "variáveis de ambiente" no Windows e abra "Editar as variáveis de ambiente do sistema".
-    *   Clique em "Variáveis de Ambiente...".
-    *   Em "Variáveis do sistema", clique em "Novo..." ou "Editar...".
-        *   Nome da variável: `ANDROID_HOME`
-        *   Valor da variável: `C:\Users\ricardo.l.junior\AppData\Local\Android\Sdk`
-    *   Clique OK. **(OK)**
-
-3.  **Adicione o SDK Platform-Tools ao `Path` do sistema:**
-    *   Em "Variáveis do sistema", selecione `Path` e clique em "Editar...".
-    *   Certifique-se de que existam as seguintes entradas:
-        - `%ANDROID_HOME%\platform-tools`
-        - `%ANDROID_HOME%\tools`
-        - `%ANDROID_HOME%\emulator`
-    *   Clique OK em todas as janelas. **(OK)**
-
-4.  **Reinicie o computador ou o PowerShell** para garantir que as variáveis sejam recarregadas. **(OK)**
-
-### ✅ Testes de Ambiente (Concluído)
-
-No PowerShell, execute:
-
-```powershell
-echo $env:ANDROID_HOME
-adb version
-node -v
-npm -v
-```
-
-- O caminho do SDK deve aparecer corretamente.
-- O comando `adb version` deve mostrar a versão do Android Debug Bridge.
-- Node.js e npm devem mostrar versões válidas.
-
-### ✅ Verificar emulador Android (Concluído)
-
-- Abra o Android Studio > Virtual Device Manager e inicie um emulador.
-- No PowerShell:
-  ```powershell
-  adb devices
-  ```
-  Deve listar pelo menos um dispositivo (emulador).
-
-### ✅ Instalar dependências do projeto (Concluído)
-
-No diretório do projeto:
-```powershell
-npm install
-npm install @react-navigation/native @react-navigation/native-stack @react-navigation/stack
-npm install @react-navigation/bottom-tabs
-npm install react-native-screens react-native-safe-area-context
-npm install @supabase/supabase-js
-npm install --save-dev @types/react @types/react-native
-```
-
-### ✅ Rodar o app com Expo Go (Recomendado)
-1. No terminal, execute com workaround de SSL:
-   ```powershell
-   $env:NODE_TLS_REJECT_UNAUTHORIZED=0; npx expo start --host lan
-   ```
-2. No seu dispositivo ou emulador com Expo Go instalado (deve ser compatível com SDK 51):
-   - Abra o Expo Go e escaneie o QR code exibido no terminal.
-3. Acompanhe os logs no terminal do Metro Bundler. Você deverá ver uma linha como:
-   ```
-   Supabase session: { ... }
-   ```
-
-> Dica: se aparecer erro de incompatibilidade de SDK, instale a versão do Expo Go para SDK 51:
-> https://expo.dev/go?sdkVersion=51&platform=android&device=true
-
-### ✅ Docker Desktop e Metro Bundler (Concluído)
-
-- O container Docker é criado e iniciado com o comando:
-  ```powershell
-  docker-compose up --build
-  ```
-- O Metro Bundler do Expo inicia normalmente dentro do container.
-- Logs do container mostram:
-  - "Starting Metro Bundler"
-  - Aviso sobre NODE_TLS_REJECT_UNAUTHORIZED=0 (ignorar certificado SSL autoassinado)
-  - Mensagem "Waiting on http://localhost:8081" (ou similar)
-- As portas 19000, 19001, 19002 e 8081 estão expostas e acessíveis.
-- O app pode ser conectado ao Metro Bundler do container normalmente.
+1. Pré-requisitos
+2. Instalação do Ambiente
+3. Configuração de Variáveis de Ambiente
+4. Validação do Setup
+5. Executando o App
+6. Estrutura do Projeto
+7. Próximos Passos
+8. Linters, Formatters e Testes
 
 ---
 
-## Estrutura do Projeto
+## 1. Pré-requisitos
+Antes de começar, garanta que você tenha as seguintes ferramentas instaladas no seu sistema Windows:
 
-```
+1. **Node.js (LTS)**
+   - Baixe e instale de https://nodejs.org/
+   - Após a instalação, abra o PowerShell e verifique:
+     ```powershell
+     node -v  # Exemplo: v20.5.1
+     npm -v   # Exemplo: 9.8.1
+     ```
+
+2. **Git CLI**
+   - Baixe e instale de https://git-scm.com/
+   - Feche e reabra o terminal para atualizar o PATH.
+   - Verifique:
+     ```powershell
+     git --version  # Exemplo: git version 2.49.0.windows.1
+     ```
+
+3. **GitHub CLI (gh)**
+   - Opcional, mas recomendado para criar/manter o repositório remoto.
+   - Instale via Winget:
+     ```powershell
+     winget install --id GitHub.cli -e --source winget
+     ```
+   - Feche e reabra o terminal.
+   - Verifique:
+     ```powershell
+     gh --version  # Exemplo: gh version 2.72.0 (2025-04-30)
+     ```
+
+4. **Docker Desktop**
+   - Baixe e instale de https://docker.com/products/docker-desktop
+   - Garanta que o Docker esteja em execução.
+
+5. **Android Studio + SDK/Platform-Tools**
+   - Baixe e instale de https://developer.android.com/studio
+   - Durante a instalação, marque *Android SDK* e *Android SDK Platform-Tools*.
+   - Abra o AVD Manager e crie/execute um emulador.
+
+6. **Expo CLI**
+   - Opcionalmente instale globalmente (mas `npx expo` é preferido):
+     ```powershell
+     npm install -g expo-cli
+     ```
+
+---
+
+## 2. Instalação do Ambiente
+1. Clone ou copie este repositório em `C:\PROJETOS_DEV\AlzheimerApp`.
+2. Abra o PowerShell neste diretório:
+   ```powershell
+   cd C:\PROJETOS_DEV\AlzheimerApp
+   ```
+3. Instale as dependências do projeto:
+   ```powershell
+   npm install
+   ```
+
+---
+
+## 3. Configuração de Variáveis de Ambiente
+1. **Crie um arquivo `.env`** na raiz (use o `.env.example` como modelo):
+   ```ini
+   SUPABASE_URL=https://seu-projeto.supabase.co
+   SUPABASE_ANON_KEY=SEU_ANON_KEY
+   ```
+2. **Configurar `ANDROID_HOME` e `Path`:**
+   - Abra *Editar variáveis de ambiente do sistema*.
+   - Em *Variáveis de Sistema*, adicione:
+     - `ANDROID_HOME` = `C:\Users\<seu-user>\AppData\Local\Android\Sdk`
+   - No `Path`, inclua:
+     - `%ANDROID_HOME%\platform-tools`
+     - `%ANDROID_HOME%\tools`
+     - `%ANDROID_HOME%\emulator`
+   - Reinicie o PowerShell.
+
+---
+
+## 4. Validação do Setup
+Execute cada comando abaixo e verifique se o resultado corresponde ao exemplo.
+
+1. **Node.js e npm**
+   ```powershell
+   node -v   # v20.x.x
+   npm -v    # 9.x.x
+   ```
+
+2. **Git**
+   ```powershell
+   .\validateGit.ps1
+   ```
+   - Esperado: sem erros, detecta repo, branch `main`, remote configurado e sem modificações.
+
+3. **GitHub CLI**
+   ```powershell
+   gh --version
+   ```
+   - Exemplo de saída: `gh version 2.72.0 (2025-04-30)`.
+
+4. **Supabase**
+   ```powershell
+   npm run validate:supabase
+   ```
+   - Exemplo: `Supabase session válida: null`.
+
+5. **Android SDK / ADB**
+   ```powershell
+   echo $env:ANDROID_HOME
+   adb devices
+   ```
+   - Deve mostrar o caminho do SDK e listar ao menos um emulador.
+
+---
+
+## 5. Executando o App
+### 5.1 Com Expo Go (dispositivo ou emulador)
+1. No PowerShell:
+   ```powershell
+   $env:NODE_TLS_REJECT_UNAUTHORIZED=0; npx expo start --host lan
+   ```
+2. No Expo Go, escaneie o QR code.
+3. Aguarde até ver no terminal:
+   ```text
+   Supabase session: { ... }
+   ```
+
+### 5.2 Com Docker (Metro Bundler em container)
+1. Inicie o container:
+   ```powershell
+   docker-compose up --build
+   ```
+2. Conecte o app Expo Go ao Metro na porta exposta (19000, 19001, 19002 e 8081).
+3. Workaround SSL: o script já define `NODE_TLS_REJECT_UNAUTHORIZED=0` para ignorar certificados autoassinados.
+
+---
+
+## 6. Estrutura do Projeto
+```text
 AlzheimerApp/
-├── android/                # Código nativo Android (gerado pelo prebuild)
-├── ios/                    # Código nativo iOS (gerado pelo prebuild)
-├── src/
-│   ├── assets/             # Imagens, fontes, etc.
-│   ├── components/         # Componentes React reutilizáveis
-│   ├── constants/          # Constantes (cores, chaves de API)
-│   ├── contexts/           # React Context API
-│   ├── hooks/              # Custom React Hooks
-│   ├── navigation/         # Configuração do React Navigation
-│   ├── screens/            # Telas do aplicativo
-│   ├── services/           # Lógica de Supabase, localização, etc.
-│   ├── types/              # Definições TypeScript globais
-│   └── utils/              # Funções utilitárias
-├── .env                    # Variáveis de ambiente (NÃO versionar)
-├── .env.example            # Exemplo de variáveis de ambiente
-├── .gitignore
-├── app.json                # Configuração do Expo
-├── App.tsx                 # Componente raiz do aplicativo
-├── babel.config.js
-├── docker-compose.yml
-├── Dockerfile
-├── package.json
-├── tsconfig.json
-└── README.md
+├── android/              # código nativo Android (apk, configuração Gradle)
+├── ios/                  # código nativo iOS (Xcode project, gerado pelo prebuild)
+├── src/                  # código fonte em TypeScript e assets React Native
+│   ├── assets/           # imagens, fontes e outros recursos estáticos
+│   ├── components/       # componentes React reutilizáveis
+│   ├── constants/        # constantes de projeto (cores, chaves de API)
+│   ├── contexts/         # React Contexts para estado global
+│   ├── hooks/            # hooks customizados (ex: useLocation)
+│   ├── navigation/       # definições de navegação (React Navigation)
+│   ├── screens/          # telas do app organizadas por módulo
+│   ├── services/         # serviços externos (ex: cliente Supabase)
+│   ├── types/            # definições de tipos TypeScript
+│   └── utils/            # funções utilitárias
+├── .env                  # variáveis de ambiente reais (não commitar)
+├── .env.example          # modelo das variáveis de ambiente
+├── docker-compose.yml    # orquestra container de Metro Bundler
+├── Dockerfile            # imagem com Metro Bundler em Docker
+├── App.tsx               # componente raiz do aplicativo
+├── app.json              # configuração do Expo
+├── babel.config.js       # configuração do Babel
+├── package.json          # dependências e scripts npm
+├── tsconfig.json         # configuração TypeScript
+├── validateGit.ps1       # script PowerShell para validar setup Git
+├── validateSupabase.ts   # script para validar conexão com Supabase
+└── README.md             # este guia de setup
 ```
 
-### ℹ️ Sobre arquivos `.env` e `.env.example`
+---
 
-- O arquivo `.env` deve conter **suas variáveis reais e sensíveis** (como SUPABASE_URL e SUPABASE_ANON_KEY). Ele **NÃO deve ser versionado** (já está no `.gitignore`).
-- O arquivo `.env.example` é apenas um modelo de referência, mostrando quais variáveis são necessárias para rodar o projeto. Ele **NÃO deve conter dados reais**, apenas exemplos ou instruções.
+## 7. Próximos Passos
+- Configurar Supabase Auth
+- Implementar mapas (react-native-maps)
+- Geofencing
+- Monitoramento de bateria
+- Botão de pânico
+- Notificações push
 
-Exemplo de `.env.example`:
-```
-SUPABASE_URL=https://seu-projeto.supabase.co
-SUPABASE_ANON_KEY=sua_anon_key_aqui
-```
+---
 
-Exemplo de `.env` (com seus dados reais):
-```
-SUPABASE_URL=https://oboxvhheuyjqkbmcaxyu.supabase.co
-SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-## Próximos Passos (Funcionalidades)
-
-- [ ] Configurar Supabase Auth.
-- [ ] Implementar rastreamento de localização com `react-native-maps`.
-- [ ] Desenvolver Geofencing.
-- [ ] Adicionar monitoramento de bateria.
-- [ ] Criar botão de pânico.
-- [ ] Configurar notificações push.
-- [ ] Implementar gerenciamento de contatos de emergência.
-- [ ] Focar na UI/UX e acessibilidade.
-
-## Linters e Formatters (A Ser Configurado)
-
-- ESLint
-- Prettier
-
-## Testes (A Ser Configurado)
-
-- Jest
-- React Testing Library
+## 8. Linters, Formatters e Testes
+- ESLint & Prettier: a configurar
+- Testes com Jest / React Testing Library
