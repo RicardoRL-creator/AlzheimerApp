@@ -12,3 +12,25 @@
 //   longitude: number;
 //   timestamp: number;
 // }
+
+export interface SafeZone {
+  id: string;
+  latitude: number;
+  longitude: number;
+  radius: number; // em metros
+}
+
+export interface RouteRecord {
+  id: string;
+  timestamp: number;
+  latitude: number;
+  longitude: number;
+}
+
+export type RelationshipStatus = 'pending' | 'approved' | 'rejected';
+export interface Relationship {
+  id: string;
+  caregiverId: string;
+  assistedId: string;
+  status: RelationshipStatus;
+}

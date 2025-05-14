@@ -1,40 +1,84 @@
-// Exemplo de AuthContext
-// import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode } from 'react';
 
-// interface AuthContextType {
-//   user: any; // Defina um tipo apropriado para o usuário
-//   login: () => void;
-//   logout: () => void;
-// }
+// Contexto de Autenticação fictícia para perfis de Cuidador e Pessoa Assistida
 
-// const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export type PerfilUsuario = 'cuidador' | 'pessoa_assistida';
 
-// export const AuthProvider = ({ children }: { children: ReactNode }) => {
-//   const [user, setUser] = useState<any>(null);
+export interface Usuario {
+  id: string;
+  nome: string;
+  perfil: PerfilUsuario;
+}
 
-//   const login = () => {
-//     // Lógica de login com Supabase
-//     // setUser(dataFromSupabase);
-//     console.log("User logged in");
-//   };
+interface ContextoAutenticacao {
+  // Versão em Português
+  usuario: Usuario | null;
+  definirUsuario: (usuario: Usuario) => void;
+  alternarPerfil: (perfil: PerfilUsuario) => void;
+  // Aliases em Inglês
+  user: Usuario | null;
+  setUser: (usuario: Usuario) => void;
+  switchRole: (perfil: PerfilUsuario) => void;
+  // Alias para perfil em Inglês
+  role: PerfilUsuario | null;
+}
 
-//   const logout = () => {
-//     // Lógica de logout com Supabase
-//     // setUser(null);
-//     console.log("User logged out");
-//   };
+// Criação do contexto de autenticação
+const ContextoAutenticacao = createContext<ContextoAutenticacao | undefined>(undefined);
 
-//   return (
-//     <AuthContext.Provider value={{ user, login, logout }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
+// Usuários fictícios pré-definidos para simulação da autenticação
+const USUARIOS_FICTICIOS: Record<PerfilUsuario, Usuario> = {
+  cuidador: {
+    id: '1',
+    nome: 'Cuidador Teste',
+    perfil: 'cuidador',
+  },
+  pessoa_assistida: {
+    id: '2',
+    nome: 'Pessoa Assistida Teste',
+    perfil: 'pessoa_assistida',
+  },
+};
 
-// export const useAuth = () => {
-//   const context = useContext(AuthContext);
-//   if (context === undefined) {
-//     throw new Error('useAuth must be used within an AuthProvider');
-//   }
-//   return context;
-// };
+// Provider que disponibiliza funções de autenticação para a aplicação
+export const ProvedorAutenticacao = ({ children }: { children: ReactNode }) => {
+  // Estado para armazenar o usuário atual, inicializado como cuidador
+  const [usuario, definirUsuario] = useState<Usuario>(USUARIOS_FICTICIOS.cuidador);
+
+  // Função para alternar entre os perfis de cuidador e pessoa assistida
+  const alternarPerfil = (perfil: PerfilUsuario) => {
+    definirUsuario(USUARIOS_FICTICIOS[perfil]);
+  };
+
+  return (
+    <ContextoAutenticacao.Provider
+      value={{
+        // Português
+        usuario,
+        definirUsuario,
+        alternarPerfil,
+        // Inglês
+        user: usuario,
+        setUser: definirUsuario,
+        switchRole: alternarPerfil,
+        // Perfil em Inglês
+        role: usuario?.perfil ?? null,
+      }}
+    >
+      {children}
+    </ContextoAutenticacao.Provider>
+  );
+};
+
+// Hook personalizado para acessar o contexto de autenticação
+export const usarAutenticacao = () => {
+  const contexto = useContext(ContextoAutenticacao);
+  if (contexto === undefined) {
+    throw new Error('usarAutenticacao deve ser usado dentro de um ProvedorAutenticacao');
+  }
+  return contexto;
+};
+
+// Alias para compatibilizar com imports em Inglês
+export const AuthProvider = ProvedorAutenticacao;
+export const useAuth = usarAutenticacao;

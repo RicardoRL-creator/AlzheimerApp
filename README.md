@@ -21,6 +21,10 @@ Aplicativo de assistência e monitoramento para pessoas com Alzheimer e seus cui
 7. Próximos Passos
 8. Linters, Formatters e Testes
 9. Fluxo de Trabalho Git
+10. Funcionalidades Implementadas
+11. Banco de Dados no Supabase
+12. Ajustes de Código
+13. Acessando o App em um Dispositivo Físico
 
 ---
 
@@ -145,19 +149,8 @@ Execute cada comando abaixo e verifique se o resultado corresponde ao exemplo.
    ```powershell
    $env:NODE_TLS_REJECT_UNAUTHORIZED=0; npx expo start --host lan
    ```
-2. No Expo Go, escaneie o QR code.
-3. Aguarde até ver no terminal:
-   ```text
-   Supabase session: { ... }
-   ```
-
-### 5.2 Com Docker (Metro Bundler em container)
-1. Inicie o container:
-   ```powershell
-   docker-compose up --build
-   ```
-2. Conecte o app Expo Go ao Metro na porta exposta (19000, 19001, 19002 e 8081).
-3. Workaround SSL: o script já define `NODE_TLS_REJECT_UNAUTHORIZED=0` para ignorar certificados autoassinados.
+2. No aplicativo Expo Go no seu celular, escaneie o QR code exibido.
+3. Garanta que PC e celular estejam na mesma rede Wi-Fi e que as portas (19000-19002, 8081) estejam liberadas pelo firewall.
 
 ---
 
@@ -196,10 +189,18 @@ AlzheimerApp/
 ## 7. Próximos Passos
 - Configurar Supabase Auth
 - Implementar mapas (react-native-maps)
-- Geofencing
-- Monitoramento de bateria
-- Botão de pânico
-- Notificações push
+- Geofencing e Monitoramento de Localização (Nova feature)
+  - Pessoa Assistida:
+    1. Definir locais seguros (zonas sem monitoramento).
+    2. Registrar percurso fora das zonas seguras com envio automático para o cuidador.
+    3. Histórico de localização para revisão posterior.
+    4. Aprovar ou recusar vínculo com cuidadores.
+    5. Configurar permissões para múltiplos cuidadores.
+  - Cuidador:
+    1. Receber alertas quando pessoa assistida ultrapassa zonas seguras.
+    2. Histórico de localização das pessoas assistidas.
+    3. Solicitar vínculo com pessoas assistidas (por ID/email).
+    4. Monitorar múltiplas pessoas assistidas de forma separada.
 
 ---
 
@@ -323,3 +324,142 @@ Pré-requisitos:
 - Node.js + npm instalados
 - Git CLI no PATH
 - GitHub CLI autenticado (`gh auth login`)
+
+---
+
+## 10. Funcionalidades Implementadas
+- Autenticação Fictícia (AuthContext) com perfis de Cuidador e Pessoa Assistida.
+- Navegação condicional por perfil.
+- Monitoramento de localização (MonitoringContext).
+- Gerenciamento de Zonas Seguras (SafeZoneScreen):
+  - Seleção de coordenadas tocando no mapa;
+  - Visualização de zonas como círculos e marcadores;
+  - Adicionar/remover zonas seguras.
+- Registro de Rotas e Histórico (RouteHistoryScreen).
+- Gestão de relacionamentos:
+  - Solicitação de vínculo (RequestLinkScreen).
+  - Aprovação/Rejeição e listagem de cuidadores (RelationshipScreen).
+  - Listagem de pessoas assistidas vinculadas (CareRelationshipsScreen).
+
+---
+
+## 11. Banco de Dados no Supabase
+
+Execute o script SQL abaixo no SQL Editor do Supabase para criar as tabelas necessárias:
+```sql
+-- Habilita extensão para UUIDs
+create extension if not exists "pgcrypto";
+
+-- Safe Zones
+create table if not exists safe_zones (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  center_lat double precision not null,
+  center_lng double precision not null,
+  radius double precision not null,
+  created_at timestamp with time zone default now()
+);
+
+-- Histórico de Localização
+create table if not exists location_history (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  latitude double precision not null,
+  longitude double precision not null,
+  recorded_at timestamp with time zone default now()
+);
+
+-- Solicitações de Vínculo
+create table if not exists relationship_requests (
+  id uuid primary key default gen_random_uuid(),
+  caregiver_id uuid not null references auth.users(id) on delete cascade,
+  patient_id uuid not null references auth.users(id) on delete cascade,
+  status text not null default 'pending' check (status in ('pending','approved','rejected')),
+  requested_at timestamp with time zone default now(),
+  responded_at timestamp with time zone
+);
+```
+
+---
+
+## 12. Ajustes de Código
+- Atualizado `src/services/supabase/client.ts` para inicializar o cliente apenas se as variáveis de ambiente estiverem definidas.
+- Adicionados aliases `AuthProvider`/`useAuth` em `AuthContext.tsx` para compatibilidade.
+- `react-native-screens` ativado em `App.tsx` via `enableScreens()` antes da navegação.
+- Contextos de Monitoramento e Relacionamento preparados para usar as novas tabelas.
+
+---
+
+## 13. Acessando o App em um Dispositivo Físico
+
+### 13.1 Preparação do Ambiente
+
+1. **Certifique-se de que o computador e o celular estão na mesma rede Wi-Fi**
+   - Ambos dispositivos devem conseguir se comunicar na rede local
+   - Evite redes corporativas com firewalls restritivos
+
+2. **Configure as variáveis de ambiente**
+   - Crie o arquivo `.env` na raiz do projeto com:
+     ```properties
+     # IP da sua máquina na rede local
+     REACT_NATIVE_PACKAGER_HOSTNAME=192.168.x.x
+     
+     # Credenciais do Supabase (necessárias para o app funcionar)
+     EXPO_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
+     EXPO_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima_aqui
+     ```
+   - Substitua `192.168.x.x` pelo IP real da sua máquina na rede Wi-Fi
+   - Descubra seu IP usando `ipconfig` no PowerShell
+
+3. **Instale o aplicativo Expo Go no celular**
+   - [Android Play Store](https://play.google.com/store/apps/details?id=host.exp.exponent)
+   - [iOS App Store](https://apps.apple.com/app/expo-go/id982107779)
+
+### 13.2 Executando o App
+
+1. **Inicie o servidor Metro em modo LAN**
+   ```powershell
+   cd C:\PROJETOS_DEV\AlzheimerApp
+   $env:NODE_TLS_REJECT_UNAUTHORIZED=0; npx expo start -c --host lan
+   ```
+
+2. **Conecte-se pelo Expo Go**
+   - Abra o Expo Go no celular
+   - Escaneie o QR code exibido no terminal
+   - Para iOS: use a câmera do aparelho
+   - Para Android: use o scanner dentro do app Expo Go
+
+3. **Requisitos de rede**
+   - Certifique-se de que as portas `8081` e `19000-19002` estejam liberadas no firewall
+   - Desabilite temporariamente antivírus que bloqueiem conexões locais
+
+### 13.3 Resolução de Problemas
+
+- **App não conecta ao servidor Metro**
+  - Verifique se o HOSTNAME no `.env` está correto
+  - Tente temporariamente desativar o firewall do Windows
+  - Use o prompt `e` no terminal para enviar o link por email/SMS
+
+- **Erro de certificado**
+  - O uso de `NODE_TLS_REJECT_UNAUTHORIZED=0` é necessário em alguns ambientes de desenvolvimento
+  - Esta configuração deve ser usada apenas em ambiente de desenvolvimento
+
+- **App carrega mas ocorrem erros de API**
+  - Verifique se as credenciais do Supabase estão corretas no `.env`
+  - Confirme que as tabelas necessárias foram criadas no painel do Supabase
+
+### 13.4 Resumo de Comandos Úteis
+
+```powershell
+# Verificar seu IP na rede (use o resultado no .env)
+ipconfig
+
+# Limpar cache e iniciar o servidor em modo LAN
+$env:NODE_TLS_REJECT_UNAUTHORIZED=0; npx expo start -c --host lan
+
+# Recarregar em caso de problemas
+$env:NODE_TLS_REJECT_UNAUTHORIZED=0; npx expo start -c --host lan --clear
+```
+
+---

@@ -1,41 +1,57 @@
+// Arquivo de navegação principal: define as rotas do aplicativo conforme o perfil do usuário autenticado
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
-// Importe suas telas placeholder aqui
+import { useAuth } from '../contexts/AuthContext';
 import LoginScreen from '../screens/Auth/LoginScreen';
 import HomeScreen from '../screens/Caregiver/HomeScreen';
+import PatientHomeScreen from '../screens/Patient/PatientHomeScreen';
+import SafeZoneScreen from '../screens/Patient/SafeZoneScreen';
+import RouteHistoryScreen from '../screens/Patient/RouteHistoryScreen';
+import RelationshipScreen from '../screens/Patient/RelationshipScreen';
+import RequestLinkScreen from '../screens/Caregiver/RequestLinkScreen';
+import CareRelationshipsScreen from '../screens/Caregiver/CareRelationshipsScreen';
 
-// Defina os tipos para os parâmetros de rota
+// Definição dos tipos de parâmetros para as rotas do aplicativo
 export type RootStackParamList = {
-  Login: undefined; // A tela de Login não recebe parâmetros
-  Home: undefined;  // A tela Home não recebe parâmetros
-  // Adicione outras telas e seus parâmetros aqui
-  // Exemplo: Profile: { userId: string };
+  Login: undefined;
+  Home: undefined;
+  PatientHome: undefined;
+  SafeZone: undefined;
+  RouteHistory: undefined;
+  Relationship: undefined;
+  Request: undefined;
+  Relationships: undefined;
 };
 
+// Criação do navegador de pilha (Stack) para transição entre telas
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
+  // Obtém o perfil atual do usuário do contexto de autenticação
+  const { role } = useAuth();
+
+  // Redireciona para a tela inicial adequada conforme o perfil do usuário
   return (
     <NavigationContainer>
-      <Stack.Navigator 
-        initialRouteName="Login" // Define a tela inicial
-        screenOptions={{
-          headerShown: false, // Opcional: esconde o header padrão para um visual mais limpo
-        }}
+      <Stack.Navigator
+        // Define a tela inicial baseada no perfil: Home para cuidador, PatientHome para pessoa assistida
+        initialRouteName={role === 'pessoa_assistida' ? 'PatientHome' : 'Home'}
+        screenOptions={{ headerShown: true }}
       >
+        {/* Tela de login (não utilizada no fluxo atual mas mantida para referência) */}
         <Stack.Screen name="Login" component={LoginScreen} />
+        
+        {/* Telas para perfil de Cuidador */}
         <Stack.Screen name="Home" component={HomeScreen} />
-        {/* Adicione outras Stack.Screen para mais telas aqui conforme for desenvolvendo */}
-        {/* 
-          Exemplos de outras telas que você pode adicionar:
-          <Stack.Screen name="PatientDashboard" component={PatientDashboardScreen} />
-          <Stack.Screen name="MapScreen" component={MapScreen} />
-          <Stack.Screen name="GeofenceSettings" component={GeofenceSettingsScreen} />
-          <Stack.Screen name="EmergencyContacts" component={EmergencyContactsScreen} />
-          <Stack.Screen name="Settings" component={SettingsScreen} /> 
-        */}
+        <Stack.Screen name="Request" component={RequestLinkScreen} />
+        <Stack.Screen name="Relationships" component={CareRelationshipsScreen} />
+        
+        {/* Telas para perfil de Pessoa Assistida */}
+        <Stack.Screen name="PatientHome" component={PatientHomeScreen} />
+        <Stack.Screen name="SafeZone" component={SafeZoneScreen} />
+        <Stack.Screen name="RouteHistory" component={RouteHistoryScreen} />
+        <Stack.Screen name="Relationship" component={RelationshipScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
