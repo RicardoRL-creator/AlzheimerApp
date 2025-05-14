@@ -25,11 +25,17 @@ Aplicativo de assistência e monitoramento para pessoas com Alzheimer e seus cui
       git --version
       ```
       para garantir que o comando seja reconhecido. Se der erro, verifique se `C:\Program Files\Git\cmd` está incluso no `Path` do sistema.
-3.  **Docker Desktop:** Instale em [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop). **(OK)**
-4.  **Android Studio:** Instale em [developer.android.com/studio](https://developer.android.com/studio). **(OK)**
+3.  **GitHub CLI (gh):** Opcional, mas recomendado para criar e gerenciar repositórios direto no terminal.
+    ```powershell
+    winget install --id GitHub.cli -e --source winget
+    # Após a instalação, feche e reabra o terminal para o comando 'gh' ficar disponível.
+    gh --version
+    ```
+4.  **Docker Desktop:** Instale em [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop). **(OK)**
+5.  **Android Studio:** Instale em [developer.android.com/studio](https://developer.android.com/studio). **(OK)**
     *   Durante a instalação, certifique-se de que o **Android SDK** e **Android SDK Platform-Tools** sejam instalados. **(OK)**
     *   Configure um emulador Android através do AVD Manager no Android Studio ou prepare um dispositivo físico para testes. **(OK)**
-5.  **Expo CLI (opcional globalmente, mas `npx expo` é preferido):**
+6.  **Expo CLI (opcional globalmente, mas `npx expo` é preferido):**
     ```bash
     npm install -g expo-cli
     ```
