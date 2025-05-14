@@ -20,6 +20,7 @@ Aplicativo de assistência e monitoramento para pessoas com Alzheimer e seus cui
 6. Estrutura do Projeto
 7. Próximos Passos
 8. Linters, Formatters e Testes
+9. Fluxo de Trabalho Git
 
 ---
 
@@ -205,3 +206,84 @@ AlzheimerApp/
 ## 8. Linters, Formatters e Testes
 - ESLint & Prettier: a configurar
 - Testes com Jest / React Testing Library
+
+---
+
+## 9. Fluxo de Trabalho Git
+Este projeto usa o **GitHub Flow**, um modelo simples e eficiente para colaboração e versionamento.
+
+### 9.1 O que é uma *branch*?
+- Uma *branch* (ramo) é uma linha de desenvolvimento isolada. Evita que mudanças experimentais afetem o código estável em `main`.
+
+### 9.2 Criando e trocando de branch
+1. Sempre parta da `main`:
+   ```powershell
+   git checkout main
+   git pull origin main
+   ```
+2. Crie uma branch de feature/correção:
+   ```powershell
+   git checkout -b feature/minha-feature
+   ```
+   - Use nomes claros: `feature/login`, `fix/crash-ao-abrir`
+
+### 9.3 Trabalhando na sua branch
+- Faça alterações e **salve** arquivos localmente.
+- Adicione as mudanças ao stage:
+  ```powershell
+  git add arquivo1 arquivo2
+  ```
+- Crie commits pequenos e descritivos:
+  ```powershell
+  git commit -m "feat(login): adicionar botão de logout"
+  ```
+
+### 9.4 Manter sua branch atualizada
+Enquanto desenvolve, sincronize sua branch com a `main` para evitar conflitos:
+```powershell
+# volte à main e baixe alterações
+git checkout main
+git pull origin main
+# volte à feature e incorpore as mudanças
+git checkout feature/minha-feature
+git merge main
+```
+Se houver conflitos, edite os arquivos marcados, teste e faça commit.
+
+### 9.5 Enviando para o repositório remoto
+Depois de alguns commits locais, envie sua branch:
+```powershell
+git push -u origin feature/minha-feature
+```
+A opção `-u` configura a branch remota como upstream.
+
+### 9.6 Abrindo um Pull Request (PR)
+1. No GitHub, acesse o repositório e clique em **Compare & pull request**.
+2. Escolha `feature/minha-feature` como branch de origem e `main` como destino.
+3. Adicione título e descrição claros (objetivo, mudanças principais, como testar).
+4. Solicite revisão de colegas, se aplicável.
+
+### 9.7 Revisão de Código e Aprovação
+- Revisores podem comentar e solicitar ajustes.
+- Faça correções na mesma branch, commit e push: o PR atualiza automaticamente.
+- Quando aprovado e sem conflitos, prossiga para mesclar.
+
+### 9.8 Mesclando o Pull Request
+- Use o botão **Merge pull request** no GitHub.
+- Selecione *Squash and merge* ou *Create a merge commit*, conforme sua preferência.
+- Apague a branch remota clicando em **Delete branch**.
+
+### 9.9 Limpeza das Branches Locais
+Após o merge, exclua a branch local:
+```powershell
+git checkout main
+git pull
+git branch -d feature/minha-feature
+```
+
+### 9.10 Protegendo a branch `main`
+No GitHub, vá em **Settings > Branches > Branch protection rules** e ative:
+- Revisão obrigatória de PR antes de mesclar.
+- Verificação automática de testes e lint.
+
+Dessa forma você mantém o repositório organizado, evita erros na `main` e facilita o trabalho em equipe.
