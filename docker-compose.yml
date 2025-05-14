@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081" # Metro Bundler
+      - "19000:19000" # Expo DevTools
+      - "19001:19001" # Expo DevTools / Web
+      - "19002:19002" # Metro Bundler inspector proxy
+    volumes:
+      - .:/usr/src/app # Mapeia o diretório atual para /usr/src/app no container
+      - /usr/src/app/node_modules # Evita que node_modules local sobrescreva o do container (importante!)
+    environment:
+      - NODE_TLS_REJECT_UNAUTHORIZED=0 # Ignora erros de certificado SSL no container
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0 # Permite acesso ao Expo DevTools
+      # REACT_NATIVE_PACKAGER_HOSTNAME será definido via .env para clareza
+    env_file:
+      - .env # Carrega variáveis de um arquivo .env (crie este arquivo)
